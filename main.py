@@ -1,6 +1,5 @@
 import os
 import time
-
 from manager import *
 
 
@@ -98,7 +97,6 @@ while True:
 
     elif choice == "4":
         print_edit_person()
-
 
     elif choice == "Q":
         os.system('clear')
