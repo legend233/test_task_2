@@ -1,7 +1,7 @@
 import curses
 # settings
 BOOK_PATH = 'book.json'
-PAGE_SIZE = 3
+PAGE_SIZE = 5
 LEFT_SPACE = 10
 # keys
 NEXT_PAGE = curses.KEY_RIGHT

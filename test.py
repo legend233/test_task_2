@@ -1,4 +1,3 @@
-from settings import *
 import os
 from manager import *
 
