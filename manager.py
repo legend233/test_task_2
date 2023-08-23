@@ -4,7 +4,12 @@ from settings import *
 
 
 def get_book() -> dict:
-    """Функция получения справочника из файла"""
+    """
+    Получает книгу из указанного пути.
+
+    Возвращает:
+        Словарь, представляющий данные книги.
+    """
     if os.stat(BOOK_PATH).st_size == 0:
         return dict()
     else:
@@ -14,7 +19,16 @@ def get_book() -> dict:
 
 
 def get_page_from_book(page: int, book) -> list:
-    """Возврат необходимой страницы из справочника"""
+    """
+    Генерирует список данных для определенной страницы из книги.
+
+    Параметры:
+        page (int): Номер страницы, для которой нужно получить данные.
+        book (dict): Книга, содержащая данные.
+
+    Возвращает:
+        list: Список данных для указанной страницы.
+    """
     body = []
     for key in list(book.keys())[(page - 1) * PAGE_SIZE:page * PAGE_SIZE]:
         line_data = f"{key:<5}{book[key]['surname']:<15}{book[key]['first_name']:<15}{book[key]['last_name']:<15}{book[key]['company']:<20}{book[key]['work_number']:<20}{book[key]['personal_number']:<15}"
@@ -23,14 +37,37 @@ def get_page_from_book(page: int, book) -> list:
 
 
 def update_book(book: dict) -> None:
-    """Функция обновления справочника"""
+    """
+    Обновляет книгу, записывая ее содержимое в файл JSON.
+
+    Аргументы:
+        book (dict): Словарь, представляющий обновляемую книгу.
+
+    Возвращает:
+        Ничего
+    """
     with open(BOOK_PATH, 'w', encoding='utf-8') as file:
         json.dump(book, file)
 
 
 def add_person_in_book(book: dict, surname: str, first_name: str, last_name: str, company: str, work_number: str,
                        personal_number: str) -> None:
-    """Функция добавления записи в справочник"""
+    """
+    Добавляет в книгу запись и обглвляет ее содержимое в файле JSON.
+
+    Аргументы:
+            book (dict): Телефонная книга.
+            id (str): Идентификатор человека, которого нужно отредактировать.
+            surname (str): Фамилия человека.
+            first_name (str): Имя человека.
+            last_name (str): Отчество человека.
+            company (str): Компания человека.
+            work_number (str): Рабочий номер человека.
+            personal_number (str): Личный номер человека.
+
+    Возвращает:
+        Ничего
+    """
     if os.stat(BOOK_PATH).st_size == 0:
         new_key = "1"
     else:
@@ -77,7 +114,17 @@ def edit_person_in_book(book: dict, id: str, surname: str, first_name: str, last
 
 
 def find_person_in_book(book: dict, find_request) -> dict:
-    """Функция поиска человека в справочнике"""
+    """
+    Найти человека в книге на основе поискового запроса.
+
+    Параметры:
+        book (dict): Книга, в которой будет производиться поиск, представленная в виде словаря.
+        find_request: Поисковый запрос.
+
+    Возвращает:
+        dict: Словарь, содержащий отфильтрованные записи из книги, соответствующие поисковому запросу.
+    """
+    
     filtred_book = dict()
     for person_key in book.keys():
         for parametr in book[person_key].keys():

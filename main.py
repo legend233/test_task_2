@@ -1,4 +1,3 @@
-import os
 import time
 from manager import *
 
@@ -8,7 +7,17 @@ current_page = 1
 max_pages = 1 + len(get_book())//PAGE_SIZE
 
 
-def print_telephone_book(page, book):
+def print_telephone_book(page: int, book: list) -> None:
+    """
+    Выводит телефонную книгу с заданным номером страницы и данными книги.
+
+    Аргументы:
+        page (int): Номер страницы для вывода.
+        book (list): Список, представляющий строки телефонной книги.
+
+    Возвращает:
+        None
+    """
     os.system('clear')
     print(LEFT_SPACE * " " + "ТЕЛЕФОННЫЙ СПРАВОЧНИК")
     print_telephone_book_page(page, book)
@@ -20,7 +29,17 @@ def print_telephone_book(page, book):
           "\n" + LEFT_SPACE * " " + "Поиск по запросу - 5")
 
 
-def print_telephone_book_page(page, book):
+def print_telephone_book_page(page: int, book: list) -> None:
+    """
+    Выводит страницу из телефонной книги.
+
+    Аргументы:
+        page (int): Номер страницы для вывода.
+        book (list): Название телефонной книги.
+
+    Возвращает:
+        None
+    """
     print(LEFT_SPACE * " " + f"{'':-<105}")
     print(LEFT_SPACE * " " + f"{'ID':<5}{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}{'Телефон рабочий':<20}{'Телефон личный':<15}")
     print(LEFT_SPACE * " " + f"{'':-<105}")
@@ -29,7 +48,17 @@ def print_telephone_book_page(page, book):
     
 
 
-def print_add_person():
+def print_add_person() -> list or None:
+    """
+    Выводит информацию о человеке и добавляет ее в телефонный справочник.
+
+    Очищает экран и запрашивает у пользователя ввод информации о новом человеке в телефонный справочник.
+    Функция не принимает параметров.
+
+    Возвращает:
+        - Если пользователь решает добавить человека, возвращает список с информацией о человеке.
+        - Если пользователь решает не добавлять человека, возвращает None.
+    """
     os.system('clear')
     print(LEFT_SPACE * " " + "ДОБАВЛЕНИЕ ЗАПИСИ В ТЕЛЕФОННЫЙ СПРАВОЧНИК")
     print(LEFT_SPACE * " " + "Нажми Enter, чтобы пропустить")
@@ -56,7 +85,15 @@ def print_add_person():
 
 
 
-def print_edit_person():
+def print_edit_person() -> None:
+    """
+    Запрашивает у пользователя ввод ID и затем позволяет внести изменения в данные соответствующего человека.
+
+    Возвращает:
+        - Если пользователь вводит 'Q', возвращает None.
+        - Если человек с указанным ID существует, позволяет пользователю внести изменения в его данные и возвращает обновленный ID и отредактированные данные человека.
+        - Если человек с указанным ID не существует, выводит "Неверный ИД" и ничего не возвращает.
+    """
     id = input(LEFT_SPACE * " " + "(Назад - Q) Чтобы отредактировать запись, введи ID: ")
     if id == 'Q':
         return None
@@ -77,17 +114,27 @@ def print_edit_person():
         print(LEFT_SPACE * " " + f"{id:<5}{edit_person['surname']:<15}{edit_person['first_name']:<15}{edit_person['last_name']:<15}\
 {edit_person['company']:<20}{edit_person['work_number']:<20}{edit_person['personal_number']:<15}")
         print(LEFT_SPACE * " " + f"{'':-<100}")
-        if input(LEFT_SPACE * " " + "Изменить запись? ").lower() in ["yes","да", 'y', "д"]:
+        if input(LEFT_SPACE * " " + "Изменить запись? да/нет: ").lower() in ["yes","да", 'y', "д"]:
             edit_person_in_book(current_book, id, *edit_person.values())
             print(LEFT_SPACE * " " + "Запись изменена")
             time.sleep(2)
-            return id, edit_person
+            
     else:
         print("Неверный ИД")
 
 
-def print_find_person_book(book, find_request):
-    first_page_of_request = 1
+def print_find_person_book(book: list, find_request) -> None:
+    """
+    Выводит результаты поиска для указанного запроса в телефонной книге.
+
+    Параметры:
+    - book (list): Список, содержащий записи телефонной книги.
+    - find_request (str): Запрос для поиска в телефонной книге.
+
+    Возвращает:
+    None
+    """
+    first_page_of_request = 1 # Первая страница результатов
     os.system('clear')
     print(LEFT_SPACE * " " + f"ПОИСК ПО ЗАПРОСУ: {find_request}")
     print(LEFT_SPACE * " " + "Продолжите, чтобы фильтровать результат")
@@ -127,4 +174,4 @@ while True:
 
 
 print("Вы вышли из справочника")
-
+ 
