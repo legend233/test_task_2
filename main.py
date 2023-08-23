@@ -7,20 +7,33 @@ current_page = 1
 max_pages = 1 + len(get_book())//PAGE_SIZE
 
 
-def print_telephone_book(page: int, book: list) -> None:
+def utf_valid(data: str):
+    """Проверка на соответствие строки UTF-8"""
+    try:
+        data.encode('utf-8')
+        return True
+    except UnicodeEncodeError:
+        print(LEFT_SPACE * " " + "Не соответствует UTF-8")
+        return False
+
+
+def print_telephone_book(page: int, book: dict) -> None:
     """
     Выводит телефонную книгу с заданным номером страницы и данными книги.
 
     Аргументы:
         page (int): Номер страницы для вывода.
-        book (list): Список, представляющий строки телефонной книги.
+        book (dict): словарь, представляющий строки телефонной книги.
 
     Возвращает:
         None
     """
+    # шапка
     os.system('clear')
     print(LEFT_SPACE * " " + "ТЕЛЕФОННЫЙ СПРАВОЧНИК")
+    # тело
     print_telephone_book_page(page, book)
+    # подвал
     print(LEFT_SPACE * " " + f"{'Страница '+str(page):-^105}")
     print(
           "\n" + LEFT_SPACE * " " + "Выход Q, предыдущая страница 1, следующая страница - 2,",
@@ -29,24 +42,24 @@ def print_telephone_book(page: int, book: list) -> None:
           "\n" + LEFT_SPACE * " " + "Поиск по запросу - 5")
 
 
-def print_telephone_book_page(page: int, book: list) -> None:
+def print_telephone_book_page(page: int, book: dict) -> None:
     """
     Выводит страницу из телефонной книги.
 
     Аргументы:
         page (int): Номер страницы для вывода.
-        book (list): Название телефонной книги.
+        book (dict): Название телефонной книги.
 
     Возвращает:
         None
     """
     print(LEFT_SPACE * " " + f"{'':-<105}")
-    print(LEFT_SPACE * " " + f"{'ID':<5}{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}{'Телефон рабочий':<20}{'Телефон личный':<15}")
+    print(LEFT_SPACE * " " + f"{'ID':<5}{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}\
+{'Телефон рабочий':<20}{'Телефон личный':<15}")
     print(LEFT_SPACE * " " + f"{'':-<105}")
     for index, line in enumerate(get_page_from_book(page, book)):
         print(LEFT_SPACE * " " + f"{line}")
     
-
 
 def print_add_person() -> list or None:
     """
@@ -63,26 +76,24 @@ def print_add_person() -> list or None:
     print(LEFT_SPACE * " " + "ДОБАВЛЕНИЕ ЗАПИСИ В ТЕЛЕФОННЫЙ СПРАВОЧНИК")
     print(LEFT_SPACE * " " + "Нажми Enter, чтобы пропустить")
     titles = ["Фамилия", "Имя", "Отчество", "Организация", "Телефон рабочий", "Телефон личный"]
-    new_person = []
-    
+    person = []
     for title in titles:
         new_data = input("\r" + LEFT_SPACE * " " + f"Введите - {title}: ")
-        if new_data:
-            new_person.append(new_data)
+        if new_data and utf_valid(new_data):
+            person.append(new_data)
         else:
-            new_person.append("None")
+            person.append("None")
 
     print(LEFT_SPACE * " " + f"{'':-<100}")
     print(LEFT_SPACE * " " + f"{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}\
 {'Телефон рабочий':<20}{'Телефон личный':<15}")
-    print(LEFT_SPACE * " " + f"{new_person[0]:<15}{new_person[1]:<15}{new_person[2]:<15}\
-{new_person[3]:<20}{new_person[4]:<20}{new_person[5]:<15}")
+    print(LEFT_SPACE * " " + f"{person[0]:<15}{person[1]:<15}{person[2]:<15}\
+{person[3]:<20}{person[4]:<20}{person[5]:<15}")
     print(LEFT_SPACE * " " + f"{'':-<100}")
-    if input(LEFT_SPACE * " " + "Добавить запись? да/нет: ").lower() in ["yes","да", 'y', "д"]:
-        return new_person
+    if input(LEFT_SPACE * " " + "Добавить запись? да/нет: ").lower() in ["yes", "да", 'y', "д"]:
+        return person
     else:
         return None
-
 
 
 def print_edit_person() -> None:
@@ -91,9 +102,11 @@ def print_edit_person() -> None:
 
     Возвращает:
         - Если пользователь вводит 'Q', возвращает None.
-        - Если человек с указанным ID существует, позволяет пользователю внести изменения в его данные и возвращает обновленный ID и отредактированные данные человека.
+        - Если человек с указанным ID существует, позволяет пользователю внести изменения в его данные
+          и возвращает обновленный ID и отредактированные данные человека.
         - Если человек с указанным ID не существует, выводит "Неверный ИД" и ничего не возвращает.
     """
+
     id = input(LEFT_SPACE * " " + "(Назад - Q) Чтобы отредактировать запись, введи ID: ")
     if id == 'Q':
         return None
@@ -104,17 +117,18 @@ def print_edit_person() -> None:
         print(LEFT_SPACE * " " + "Нажми Enter, чтобы не менять")
         for key, title in zip(list(person.keys()), titles):
             new_data = input("\r" + LEFT_SPACE * " " + f"Текущее значение - {title}: {person[key]}: ")
-            if new_data:
+            if new_data and utf_valid(new_data):
                 edit_person[key] = new_data
             else:
                 edit_person[key] = person[key]
         print(LEFT_SPACE * " " + f"{'':-<100}")
         print(LEFT_SPACE * " " + f"{'ID':<5}{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}\
 {'Телефон рабочий':<20}{'Телефон личный':<15}")
-        print(LEFT_SPACE * " " + f"{id:<5}{edit_person['surname']:<15}{edit_person['first_name']:<15}{edit_person['last_name']:<15}\
-{edit_person['company']:<20}{edit_person['work_number']:<20}{edit_person['personal_number']:<15}")
+        print(LEFT_SPACE * " " + f"{id:<5}{edit_person['surname']:<15}{edit_person['first_name']:<15}\
+{edit_person['last_name']:<15}{edit_person['company']:<20}{edit_person['work_number']:<20}\
+{edit_person['personal_number']:<15}")
         print(LEFT_SPACE * " " + f"{'':-<100}")
-        if input(LEFT_SPACE * " " + "Изменить запись? да/нет: ").lower() in ["yes","да", 'y', "д"]:
+        if input(LEFT_SPACE * " " + "Изменить запись? да/нет: ").lower() in ["yes", "да", 'y', "д"]:
             edit_person_in_book(current_book, id, *edit_person.values())
             print(LEFT_SPACE * " " + "Запись изменена")
             time.sleep(2)
@@ -123,23 +137,24 @@ def print_edit_person() -> None:
         print("Неверный ИД")
 
 
-def print_find_person_book(book: list, find_request) -> None:
+def print_find_person_book(book: dict, find_request) -> None:
     """
     Выводит результаты поиска для указанного запроса в телефонной книге.
 
     Параметры:
-    - book (list): Список, содержащий записи телефонной книги.
+    - book (dict): Словарь, содержащий записи телефонной книги.
     - find_request (str): Запрос для поиска в телефонной книге.
 
     Возвращает:
     None
     """
-    first_page_of_request = 1 # Первая страница результатов
+    first_page_of_request = 1  # Первая страница результатов
     os.system('clear')
     print(LEFT_SPACE * " " + f"ПОИСК ПО ЗАПРОСУ: {find_request}")
     print(LEFT_SPACE * " " + "Продолжите, чтобы фильтровать результат")
     print_telephone_book_page(first_page_of_request, book)
     print(LEFT_SPACE * " " + f"{'':-<105}\n")
+
 
 while True:
     print_telephone_book(current_page, current_book)
@@ -163,9 +178,8 @@ while True:
         print_edit_person()
 
     elif choice == "5":
-        while s:= input(LEFT_SPACE * " " + "Введите запрос для поиска (Enter - выход): "):
-            find_persons: dict = find_person_in_book(current_book, s)
-            
+        while s := input(LEFT_SPACE * " " + "Введите запрос для поиска (Enter - выход): "):
+            find_persons = find_person_in_book(current_book, s)
             print_find_person_book(find_persons, s)
 
     elif choice == "Q":

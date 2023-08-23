@@ -18,7 +18,7 @@ def get_book() -> dict:
             return book
 
 
-def get_page_from_book(page: int, book) -> list:
+def get_page_from_book(page: int, book: dict) -> list:
     """
     Генерирует список данных для определенной страницы из книги.
 
@@ -31,7 +31,8 @@ def get_page_from_book(page: int, book) -> list:
     """
     body = []
     for key in list(book.keys())[(page - 1) * PAGE_SIZE:page * PAGE_SIZE]:
-        line_data = f"{key:<5}{book[key]['surname']:<15}{book[key]['first_name']:<15}{book[key]['last_name']:<15}{book[key]['company']:<20}{book[key]['work_number']:<20}{book[key]['personal_number']:<15}"
+        line_data = f"{key:<5}{book[key]['surname']:<15}{book[key]['first_name']:<15}{book[key]['last_name']:<15}\
+{book[key]['company']:<20}{book[key]['work_number']:<20}{book[key]['personal_number']:<15}"
         body.append(line_data)
     return body
 
@@ -47,17 +48,23 @@ def update_book(book: dict) -> None:
         Ничего
     """
     with open(BOOK_PATH, 'w', encoding='utf-8') as file:
-        json.dump(book, file)
+        json.dump(book, file, indent=4, ensure_ascii=False)
 
 
-def add_person_in_book(book: dict, surname: str, first_name: str, last_name: str, company: str, work_number: str,
-                       personal_number: str) -> None:
+def add_person_in_book(
+        book: dict,
+        surname: str,
+        first_name: str,
+        last_name: str,
+        company: str,
+        work_number: str,
+        personal_number: str
+) -> None:
     """
-    Добавляет в книгу запись и обглвляет ее содержимое в файле JSON.
+    Добавляет в книгу запись и обновляет ее содержимое в файле JSON.
 
     Аргументы:
             book (dict): Телефонная книга.
-            id (str): Идентификатор человека, которого нужно отредактировать.
             surname (str): Фамилия человека.
             first_name (str): Имя человека.
             last_name (str): Отчество человека.
@@ -84,8 +91,16 @@ def add_person_in_book(book: dict, surname: str, first_name: str, last_name: str
     update_book(sorted_book)
 
 
-def edit_person_in_book(book: dict, id: str, surname: str, first_name: str, last_name: str, company: str, work_number: str,
-                       personal_number: str) -> None:
+def edit_person_in_book(
+        book: dict,
+        id: str,
+        surname: str,
+        first_name: str,
+        last_name: str,
+        company: str,
+        work_number: str,
+        personal_number: str
+) -> None:
     """
         Редактирует информацию о человеке в книге.
 
@@ -125,9 +140,9 @@ def find_person_in_book(book: dict, find_request) -> dict:
         dict: Словарь, содержащий отфильтрованные записи из книги, соответствующие поисковому запросу.
     """
     
-    filtred_book = dict()
+    filtered_book = dict()
     for person_key in book.keys():
-        for parametr in book[person_key].keys():
-            if find_request.lower() in book[person_key][parametr].lower():
-                filtred_book[person_key] = book[person_key]
-    return filtred_book
+        for parameter in book[person_key].keys():
+            if find_request.lower() in book[person_key][parameter].lower():
+                filtered_book[person_key] = book[person_key]
+    return filtered_book
