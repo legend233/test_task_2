@@ -10,6 +10,7 @@
 ### Установка
     git clone https://github.com/legend233/test_task_2.git
     cd test_task_2
+    pip install -r requirements.txt
     python main.py
 
 ### Использование

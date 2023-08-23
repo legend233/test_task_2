@@ -31,8 +31,7 @@ def get_page_from_book(page: int, book: dict) -> list:
     """
     body = []
     for key in list(book.keys())[(page - 1) * PAGE_SIZE:page * PAGE_SIZE]:
-        line_data = f"{key:<5}{book[key]['surname']:<15}{book[key]['first_name']:<15}{book[key]['last_name']:<15}\
-{book[key]['company']:<20}{book[key]['work_number']:<20}{book[key]['personal_number']:<15}"
+        line_data = [key, ] + [value for value in book[key].values()]
         body.append(line_data)
     return body
 
