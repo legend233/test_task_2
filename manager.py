@@ -1,15 +1,19 @@
 import json
+import os
 from settings import *
 
 
 def get_book() -> dict:
     """Функция получения справочника из файла"""
-    with open(BOOK_PATH, 'r', encoding='utf-8') as file:
-        book = json.load(file)
-        return book
+    if os.stat(BOOK_PATH).st_size == 0:
+        return dict()
+    else:
+        with open(BOOK_PATH, 'r', encoding='utf-8') as file:
+            book = json.load(file)
+            return book
 
 
-def print_book(page: int, book) -> list:
+def get_page_from_book(page: int, book) -> list:
     """Возврат необходимой страницы из справочника"""
     body = []
     for key in list(book.keys())[(page - 1) * PAGE_SIZE:page * PAGE_SIZE]:
@@ -24,20 +28,13 @@ def update_book(book: dict) -> None:
         json.dump(book, file)
 
 
-def filter_book(book: list, *args) -> list:  # ToDo функция фильтрации справочника закончить
-    """Функция фильтрации справочника"""
-    filtered_book = []
-    for person in book:
-        for arg in args:
-            if arg in person.values():
-                filtered_book.append(person)
-    return filtered_book
-
-
 def add_person_in_book(book: dict, surname: str, first_name: str, last_name: str, company: str, work_number: str,
                        personal_number: str) -> None:
     """Функция добавления записи в справочник"""
-    new_key = str(max([int(x) for x in book.keys()]) + 1)
+    if os.stat(BOOK_PATH).st_size == 0:
+        new_key = "1"
+    else:
+        new_key = str(max([int(x) for x in book.keys()]) + 1)
     book[new_key] = {
             'surname': surname,
             'first_name': first_name,
@@ -77,3 +74,13 @@ def edit_person_in_book(book: dict, id: str, surname: str, first_name: str, last
         'personal_number': personal_number
     }
     update_book(book)
+
+
+def find_person_in_book(book: dict, find_request) -> dict:
+    """Функция поиска человека в справочнике"""
+    filtred_book = dict()
+    for person_key in book.keys():
+        for parametr in book[person_key].keys():
+            if find_request.lower() in book[person_key][parametr].lower():
+                filtred_book[person_key] = book[person_key]
+    return filtred_book

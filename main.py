@@ -11,45 +11,49 @@ max_pages = 1 + len(get_book())//PAGE_SIZE
 def print_telephone_book(page, book):
     os.system('clear')
     print(LEFT_SPACE * " " + "ТЕЛЕФОННЫЙ СПРАВОЧНИК")
-    print(LEFT_SPACE * " " + f"{'':-<100}")
-    print(LEFT_SPACE * " " + f"{'ID':<5}{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}{'Телефон рабочий':<20}{'Телефон личный':<15}")
-    print(LEFT_SPACE * " " + f"{'':-<100}")
-    for index, line in enumerate(print_book(page, book)):
-        print(LEFT_SPACE * " " + f"{line}")
-    print(LEFT_SPACE * " " + f"{'Страница '+str(page):-^100}")
+    print_telephone_book_page(page, book)
+    print(LEFT_SPACE * " " + f"{'Страница '+str(page):-^105}")
     print(
           "\n" + LEFT_SPACE * " " + "Выход Q, предыдущая страница 1, следующая страница - 2,",
           "\n" + LEFT_SPACE * " " + "Добавить запись - 3",
           "\n" + LEFT_SPACE * " " + "Редактировать запись - 4",
-          "\n" + LEFT_SPACE * " " + "Поиск по одной или нескольким характеристикам - 5")
-    choice = input(LEFT_SPACE * " " + ">>> ")
-    return choice
+          "\n" + LEFT_SPACE * " " + "Поиск по запросу - 5")
 
+
+def print_telephone_book_page(page, book):
+    print(LEFT_SPACE * " " + f"{'':-<105}")
+    print(LEFT_SPACE * " " + f"{'ID':<5}{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}{'Телефон рабочий':<20}{'Телефон личный':<15}")
+    print(LEFT_SPACE * " " + f"{'':-<105}")
+    for index, line in enumerate(get_page_from_book(page, book)):
+        print(LEFT_SPACE * " " + f"{line}")
+    
 
 
 def print_add_person():
     os.system('clear')
-    def validate_input(data):
-        import re
-        regex = r"^[^/]+(/[^/]+){5}$"
-        match = re.match(regex, data)
-        if match:
-            return True
-        else:
-            return False
     print(LEFT_SPACE * " " + "ДОБАВЛЕНИЕ ЗАПИСИ В ТЕЛЕФОННЫЙ СПРАВОЧНИК")
-    print(LEFT_SPACE * " " + f"{'':-<95}")
-    print(LEFT_SPACE * " " + "Чтобы добавить запись, введите данные в следующем формате:")
-    print(LEFT_SPACE * " " + "Фамилия/Имя/Отчество/Организация/Телефон рабочий/Телефон личный")
-
-    while True:
-        person = input(LEFT_SPACE * " " + "(выход - Q)>>> ")
-        if validate_input(person):
-            return person
-        elif person == "Q":
-            return None
+    print(LEFT_SPACE * " " + "Нажми Enter, чтобы пропустить")
+    titles = ["Фамилия", "Имя", "Отчество", "Организация", "Телефон рабочий", "Телефон личный"]
+    new_person = []
+    
+    for title in titles:
+        new_data = input("\r" + LEFT_SPACE * " " + f"Введите - {title}: ")
+        if new_data:
+            new_person.append(new_data)
         else:
-            print("Не соответствует формату")
+            new_person.append("None")
+
+    print(LEFT_SPACE * " " + f"{'':-<100}")
+    print(LEFT_SPACE * " " + f"{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}\
+{'Телефон рабочий':<20}{'Телефон личный':<15}")
+    print(LEFT_SPACE * " " + f"{new_person[0]:<15}{new_person[1]:<15}{new_person[2]:<15}\
+{new_person[3]:<20}{new_person[4]:<20}{new_person[5]:<15}")
+    print(LEFT_SPACE * " " + f"{'':-<100}")
+    if input(LEFT_SPACE * " " + "Добавить запись? да/нет: ").lower() in ["yes","да", 'y', "д"]:
+        return new_person
+    else:
+        return None
+
 
 
 def print_edit_person():
@@ -82,8 +86,17 @@ def print_edit_person():
         print("Неверный ИД")
 
 
+def print_find_person_book(book, find_request):
+    first_page_of_request = 1
+    os.system('clear')
+    print(LEFT_SPACE * " " + f"ПОИСК ПО ЗАПРОСУ: {find_request}")
+    print(LEFT_SPACE * " " + "Продолжите, чтобы фильтровать результат")
+    print_telephone_book_page(first_page_of_request, book)
+    print(LEFT_SPACE * " " + f"{'':-<105}\n")
+
 while True:
-    choice = print_telephone_book(current_page, current_book)
+    print_telephone_book(current_page, current_book)
+    choice = input(LEFT_SPACE * " " + ">>> ")
     if choice == "1":
         if current_page - 1 > 0:
             current_page -= 1
@@ -93,16 +106,25 @@ while True:
     elif choice == "3":
         new_person = print_add_person()
         if new_person:
-            add_person_in_book(current_book, *new_person.split('/'))
+            add_person_in_book(current_book, *new_person)
+            print(LEFT_SPACE * " " + "Запись добавлена")
+        else:
+            print(LEFT_SPACE * " " + "Добавление отменено")
+        time.sleep(2)
 
     elif choice == "4":
         print_edit_person()
 
+    elif choice == "5":
+        while s:= input(LEFT_SPACE * " " + "Введите запрос для поиска (Enter - выход): "):
+            find_persons: dict = find_person_in_book(current_book, s)
+            
+            print_find_person_book(find_persons, s)
+
     elif choice == "Q":
         os.system('clear')
         break
-    else:
-        print("Неверный ввод")
+
 
 print("Вы вышли из справочника")
 
