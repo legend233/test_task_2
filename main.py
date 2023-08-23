@@ -7,6 +7,8 @@ from rich.console import Console
 current_book = get_book()
 current_page = 1
 max_pages = 1 + len(get_book())//PAGE_SIZE
+console = Console()
+titles = ["ID", "Фамилия", "Имя", "Отчество", "Организация", "Телефон рабочий", "Телефон личный"]
 
 
 def utf_valid(data: str):
@@ -15,7 +17,7 @@ def utf_valid(data: str):
         data.encode('utf-8')
         return True
     except UnicodeEncodeError:
-        print(LEFT_SPACE * " " + "Не соответствует UTF-8")
+        print("Не соответствует UTF-8")
         return False
 
 
@@ -32,16 +34,17 @@ def print_telephone_book(page: int, book: dict) -> None:
     """
     # шапка
     os.system('clear')
-    print(LEFT_SPACE * " " + "ТЕЛЕФОННЫЙ СПРАВОЧНИК")
+    console.print("ТЕЛЕФОННЫЙ СПРАВОЧНИК", justify='center', style="Red")
     # тело
     print_telephone_book_page(page, book)
     # подвал
-    print(LEFT_SPACE * " " + f"{'Страница '+str(page):-^105}")
-    print(
-          "\n" + LEFT_SPACE * " " + "Выход Q, предыдущая страница 1, следующая страница - 2,",
-          "\n" + LEFT_SPACE * " " + "Добавить запись - 3",
-          "\n" + LEFT_SPACE * " " + "Редактировать запись - 4",
-          "\n" + LEFT_SPACE * " " + "Поиск по запросу - 5")
+    console.print(
+          "\nВыход Q, предыдущая страница 1, следующая страница - 2,",
+          "\nДобавить запись - 3",
+          "\nРедактировать запись - 4",
+          "\nПоиск по запросу - 5",
+          justify="left"
+    )
 
 
 def print_telephone_book_page(page: int, book: dict) -> None:
@@ -55,13 +58,14 @@ def print_telephone_book_page(page: int, book: dict) -> None:
     Возвращает:
         None
     """
-    print(LEFT_SPACE * " " + f"{'':-<105}")
-    print(LEFT_SPACE * " " + f"{'ID':<5}{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}\
-{'Телефон рабочий':<20}{'Телефон личный':<15}")
-    print(LEFT_SPACE * " " + f"{'':-<105}")
-    for index, line in enumerate(get_page_from_book(page, book)):
-        print(LEFT_SPACE * " " + f"{line}")
-    
+    table = Table(title=f"--Страница {page}--")
+    for title in titles:
+        table.add_column(title, no_wrap=True, header_style="red")
+    for row in get_page_from_book(page, book):
+        table.add_row(*row)
+
+    console.print(table, justify="center")
+
 
 def print_add_person() -> list or None:
     """
@@ -75,30 +79,29 @@ def print_add_person() -> list or None:
         - Если пользователь решает не добавлять человека, возвращает None.
     """
     os.system('clear')
-    print(LEFT_SPACE * " " + "ДОБАВЛЕНИЕ ЗАПИСИ В ТЕЛЕФОННЫЙ СПРАВОЧНИК")
-    print(LEFT_SPACE * " " + "Нажми Enter, чтобы пропустить")
-    titles = ["Фамилия", "Имя", "Отчество", "Организация", "Телефон рабочий", "Телефон личный"]
+    console.print("ДОБАВЛЕНИЕ ЗАПИСИ В ТЕЛЕФОННЫЙ СПРАВОЧНИК", style="red")
+    console.print("Нажми Enter, чтобы пропустить")
     person = []
-    for title in titles:
-        new_data = input("\r" + LEFT_SPACE * " " + f"Введите - {title}: ")
+    for title in titles[1:]:
+        new_data = input(f"\rВведите - {title}: ")
         if new_data and utf_valid(new_data):
             person.append(new_data)
         else:
             person.append("None")
+    # рисуем табличку
+    table = Table()
+    for title in titles[1:]:
+        table.add_column(title, header_style="red")
+    table.add_row(*person)
+    console.print(table, justify="center")
 
-    print(LEFT_SPACE * " " + f"{'':-<100}")
-    print(LEFT_SPACE * " " + f"{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}\
-{'Телефон рабочий':<20}{'Телефон личный':<15}")
-    print(LEFT_SPACE * " " + f"{person[0]:<15}{person[1]:<15}{person[2]:<15}\
-{person[3]:<20}{person[4]:<20}{person[5]:<15}")
-    print(LEFT_SPACE * " " + f"{'':-<100}")
-    if input(LEFT_SPACE * " " + "Добавить запись? да/нет: ").lower() in ["yes", "да", 'y', "д"]:
+    if input("Добавить запись? да/нет: ").lower() in ["yes", "да", 'y', "д"]:
         return person
     else:
         return None
 
 
-def print_edit_person() -> None:
+def print_edit_person():
     """
     Запрашивает у пользователя ввод ID и затем позволяет внести изменения в данные соответствующего человека.
 
@@ -109,32 +112,32 @@ def print_edit_person() -> None:
         - Если человек с указанным ID не существует, выводит "Неверный ИД" и ничего не возвращает.
     """
 
-    id = input(LEFT_SPACE * " " + "(Назад - Q) Чтобы отредактировать запись, введи ID: ")
+    id = input("(Назад - Q) Чтобы отредактировать запись, введи ID: ")
     if id == 'Q':
         return None
     elif person := current_book.get(id):
         os.system('clear')
-        titles = ["Фамилия", "Имя", "Отчество", "Организация", "Телефон рабочий", "Телефон личный"]
         edit_person = dict()
-        print(LEFT_SPACE * " " + "Нажми Enter, чтобы не менять")
-        for key, title in zip(list(person.keys()), titles):
-            new_data = input("\r" + LEFT_SPACE * " " + f"Текущее значение - {title}: {person[key]}: ")
+        console.print("ИЗМЕНЕНИЕ ЗАПИСИ", style="red")
+        console.print("Нажми Enter, чтобы не менять")
+        for key, title in zip(list(person.keys()), titles[1:]):
+            new_data = input(f"\rТекущее значение - {title}: {person[key]}: ")
             if new_data and utf_valid(new_data):
                 edit_person[key] = new_data
             else:
                 edit_person[key] = person[key]
-        print(LEFT_SPACE * " " + f"{'':-<100}")
-        print(LEFT_SPACE * " " + f"{'ID':<5}{'Фамилия':<15}{'Имя':<15}{'Отчество':<15}{'Организация':<20}\
-{'Телефон рабочий':<20}{'Телефон личный':<15}")
-        print(LEFT_SPACE * " " + f"{id:<5}{edit_person['surname']:<15}{edit_person['first_name']:<15}\
-{edit_person['last_name']:<15}{edit_person['company']:<20}{edit_person['work_number']:<20}\
-{edit_person['personal_number']:<15}")
-        print(LEFT_SPACE * " " + f"{'':-<100}")
-        if input(LEFT_SPACE * " " + "Изменить запись? да/нет: ").lower() in ["yes", "да", 'y', "д"]:
-            edit_person_in_book(current_book, id, *edit_person.values())
-            print(LEFT_SPACE * " " + "Запись изменена")
-            time.sleep(2)
-            
+        # рисуем табличку
+        table = Table()
+        for title in titles:
+            table.add_column(title, header_style="red")
+        table.add_row(id, *edit_person.values())
+        console.print(table, justify="center")
+
+        if input("Изменить запись? да/нет: ").lower() in ["yes", "да", 'y', "д"]:
+            return [id, ] + list(edit_person.values())
+        else:
+            return None
+
     else:
         print("Неверный ИД")
 
@@ -150,17 +153,18 @@ def print_find_person_book(book: dict, find_request) -> None:
     Возвращает:
     None
     """
+
     first_page_of_request = 1  # Первая страница результатов
     os.system('clear')
-    print(LEFT_SPACE * " " + f"ПОИСК ПО ЗАПРОСУ: {find_request}")
-    print(LEFT_SPACE * " " + "Продолжите, чтобы фильтровать результат")
+    console.print(f"ПОИСК ПО ЗАПРОСУ: ", end="", style="red")
+    console.print(find_request, style="cyan")
+    console.print("Продолжите, чтобы фильтровать результат")
     print_telephone_book_page(first_page_of_request, book)
-    print(LEFT_SPACE * " " + f"{'':-<105}\n")
 
 
 while True:
     print_telephone_book(current_page, current_book)
-    choice = input(LEFT_SPACE * " " + ">>> ")
+    choice = input(">>> ")
     if choice == "1":
         if current_page - 1 > 0:
             current_page -= 1
@@ -171,16 +175,22 @@ while True:
         new_person = print_add_person()
         if new_person:
             add_person_in_book(current_book, *new_person)
-            print(LEFT_SPACE * " " + "Запись добавлена")
+            console.print("Запись добавлена", style="red")
         else:
-            print(LEFT_SPACE * " " + "Добавление отменено")
+            console.print("Добавление отменено", style="red")
         time.sleep(2)
 
     elif choice == "4":
-        print_edit_person()
+        edit_person = print_edit_person()
+        if edit_person:
+            edit_person_in_book(current_book, *edit_person)
+            console.print("Запись изменена", style="red")
+        else:
+            console.print("Изменения отменены", style="red")
+        time.sleep(2)
 
     elif choice == "5":
-        while s := input(LEFT_SPACE * " " + "Введите запрос для поиска (Enter - выход): "):
+        while s := input("Введите запрос для поиска (Enter - выход): "):
             find_persons = find_person_in_book(current_book, s)
             print_find_person_book(find_persons, s)
 
@@ -189,5 +199,5 @@ while True:
         break
 
 
-print("Вы вышли из справочника")
+console.print("Вы вышли из справочника", style="red", justify="center")
  
