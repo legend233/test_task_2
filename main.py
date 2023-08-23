@@ -1,5 +1,7 @@
 import time
 from manager import *
+from rich.table import Table
+from rich.console import Console
 
 
 current_book = get_book()
