@@ -1,15 +1,13 @@
 import time
-from manager import *
+import os
+from settings import PAGE_SIZE
+from manager import get_book, get_page_from_book, add_person_in_book, find_person_in_book, edit_person_in_book
 from rich.table import Table
 from rich.console import Console
 
-
-current_book = get_book()
-current_page = 1
-max_pages = 1 + len(get_book())//PAGE_SIZE
 console = Console()
 titles = ["ID", "Фамилия", "Имя", "Отчество", "Организация", "Телефон рабочий", "Телефон личный"]
-
+current_book = get_book()
 
 def utf_valid(data: str):
     """Проверка на соответствие строки UTF-8"""
@@ -162,42 +160,49 @@ def print_find_person_book(book: dict, find_request) -> None:
     print_telephone_book_page(first_page_of_request, book)
 
 
-while True:
-    print_telephone_book(current_page, current_book)
-    choice = input(">>> ")
-    if choice == "1":
-        if current_page - 1 > 0:
-            current_page -= 1
-    elif choice == "2":
-        if current_page + 1 <= max_pages:
-            current_page += 1
-    elif choice == "3":
-        new_person = print_add_person()
-        if new_person:
-            add_person_in_book(current_book, *new_person)
-            console.print("Запись добавлена", style="red")
-        else:
-            console.print("Добавление отменено", style="red")
-        time.sleep(2)
+def main():
+    current_page = 1
+    max_pages = 1 + len(get_book()) // PAGE_SIZE
+    current_page = 1
+    while True:
+        print_telephone_book(current_page, current_book)
+        choice = input(">>> ")
+        if choice == "1":
+            if current_page - 1 > 0:
+                current_page -= 1
+        elif choice == "2":
+            if current_page + 1 <= max_pages:
+                current_page += 1
+        elif choice == "3":
+            new_person = print_add_person()
+            if new_person:
+                add_person_in_book(current_book, *new_person)
+                console.print("Запись добавлена", style="red")
+            else:
+                console.print("Добавление отменено", style="red")
+            time.sleep(2)
 
-    elif choice == "4":
-        edit_person = print_edit_person()
-        if edit_person:
-            edit_person_in_book(current_book, *edit_person)
-            console.print("Запись изменена", style="red")
-        else:
-            console.print("Изменения отменены", style="red")
-        time.sleep(2)
+        elif choice == "4":
+            edit_person = print_edit_person()
+            if edit_person:
+                edit_person_in_book(current_book, *edit_person)
+                console.print("Запись изменена", style="red")
+            else:
+                console.print("Изменения отменены", style="red")
+            time.sleep(2)
 
-    elif choice == "5":
-        while s := input("Введите запрос для поиска (Enter - выход): "):
-            find_persons = find_person_in_book(current_book, s)
-            print_find_person_book(find_persons, s)
+        elif choice == "5":
+            while s := input("Введите запрос для поиска (Enter - выход): "):
+                find_persons = find_person_in_book(current_book, s)
+                print_find_person_book(find_persons, s)
 
-    elif choice == "Q":
-        os.system('clear')
-        break
+        elif choice == "Q":
+            os.system('clear')
+            break
 
 
-console.print("Вы вышли из справочника", style="red", justify="center")
- 
+    console.print("Вы вышли из справочника", style="red", justify="center")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,6 @@
 import json
 import os
-from settings import *
+from settings import BOOK_PATH, PAGE_SIZE
 
 
 def get_book() -> dict:
